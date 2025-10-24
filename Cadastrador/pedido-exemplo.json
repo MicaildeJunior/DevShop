@@ -1,0 +1,24 @@
+﻿{
+  "ValorTotal": 0,
+  "Cliente": {
+    "Id": "1",
+    "Nome": "Maria da SIlva",
+    "Cpf": "43987653981",
+    "Email": "maria@gmail.com"
+  },
+  "Pagamento": {
+    "NumeroDoCartao": "1234567891234567",
+    "Validade": "15/07/2029",
+    "Cvv": "232"
+  },
+  "Produtos": [
+    {
+      "Id": "1",
+      "Quantidade": 4
+    },
+    {
+      "Id": "2",
+      "Quantidade": 2
+    }
+  ]
+}

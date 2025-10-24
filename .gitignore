@@ -1,0 +1,13 @@
+# Arquivos de configurações do Visual Studio (causa o erro de permissão)
+.vs/
+
+# Binários de compilação
+[Bb]in/
+[Oo]bj/
+
+# Arquivos de configurações de usuário (que variam por máquina)
+*.user
+*.suo
+
+# Pacotes NuGet
+packages/
