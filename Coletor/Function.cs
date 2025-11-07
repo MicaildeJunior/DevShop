@@ -54,32 +54,14 @@ public class Function
             produto.Nome = produtoDoEstoque.Nome;
 
             var valorTotal = pedido.Produtos.Sum(p => p.Valor * p.Quantidade);
-            if (pedido.ValorTotal != 0 && pedido.ValorTotal != valorTotal)
-                throw new InvalidOperationException($"O valor esperado do pedido é de R$ {pedido.ValorTotal}");
 
-            pedido.ValorTotal = valorTotal;            
+            if (pedido.ValorTotal > 0m && Math.Round(pedido.ValorTotal, 2) != Math.Round(valorTotal, 2))
+                throw new InvalidOperationException(
+                    $"Valor do pedido divergente. Enviado: R$ {pedido.ValorTotal:F2}, Calculado: R$ {valorTotal:F2}");
+
+            pedido.ValorTotal = Math.Round(valorTotal, 2);
         }
-    }
-
-    //private static async Task<Produto?> ObterProdutoDoDynamoDbAsync(string id)
-    //{
-    //    var client = new AmazonDynamoDBClient();
-
-    //    var request = new QueryRequest
-    //    {
-    //        TableName = "estoque",
-    //        KeyConditionExpression = "Id = :v_id",
-    //        ExpressionAttributeValues = new Dictionary<string, AttributeValue> { { ":v_id" , new AttributeValue { S = id } } } 
-    //    };
-
-    //    var response = await client.QueryAsync(request);
-    //    var item = response.Items.FirstOrDefault();
-
-    //    if (item is null)
-    //        return null;
-
-    //    return item.ToObject<Produto?>();
-    //}
+    }    
 
     private static async Task<Produto?> ObterProdutoDoDynamoDbAsync(string id)
     {
