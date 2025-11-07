@@ -50,17 +50,18 @@ public class Function
             var produtoDoEstoque = await ObterProdutoDoDynamoDbAsync(produto.Id)
                 ?? throw new InvalidOperationException($"O produto não foi encontrado na tabela estoque: { produto.Nome}");
 
-            produto.Valor = produtoDoEstoque.Valor;
             produto.Nome = produtoDoEstoque.Nome;
+            produto.Valor = produtoDoEstoque.Valor;
 
-            var valorTotal = pedido.Produtos.Sum(p => p.Valor * p.Quantidade);
-
-            if (pedido.ValorTotal > 0m && Math.Round(pedido.ValorTotal, 2) != Math.Round(valorTotal, 2))
-                throw new InvalidOperationException(
-                    $"Valor do pedido divergente. Enviado: R$ {pedido.ValorTotal:F2}, Calculado: R$ {valorTotal:F2}");
-
-            pedido.ValorTotal = Math.Round(valorTotal, 2);
         }
+        
+        var valorTotal = pedido.Produtos.Sum(p => p.Valor * p.Quantidade);
+
+        if (pedido.ValorTotal > 0m && Math.Round(pedido.ValorTotal, 2) != Math.Round(valorTotal, 2))
+            throw new InvalidOperationException(
+                $"Valor do pedido divergente. Enviado: R$ {pedido.ValorTotal:F2}, Calculado: R$ {valorTotal:F2}");
+
+        pedido.ValorTotal = Math.Round(valorTotal, 2);
     }    
 
     private static async Task<Produto?> ObterProdutoDoDynamoDbAsync(string id)

@@ -1,4 +1,6 @@
 ﻿using Amazon.DynamoDBv2.DataModel;
+using Newtonsoft.Json.Converters;
+using System.Text.Json.Serialization;
 
 namespace Compartilhado.Model;
 
@@ -20,6 +22,8 @@ public class Pedido
     public Cliente? Cliente { get; set; }
     public Pagamento? Pagamento { get; set; }
     public string JustificativaDeCancelamento { get; set; } = string.Empty;
+
+    [JsonConverter(typeof(StringEnumConverter))]
     public StatusPedido Status { get; set; }
     public bool Cancelado { get; set; }      
 }
