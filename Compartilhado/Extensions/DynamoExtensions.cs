@@ -35,9 +35,14 @@ public static class DynamoExtensions
             BOOL = av.BOOL
         };
 
-        if (av.SS != null) mav.SS = av.SS;
-        if (av.NS != null) mav.NS = av.NS;
-        if (av.BS != null) mav.BS = av.BS;
+        if (av.SS != null) 
+            mav.SS = av.SS;
+
+        if (av.NS != null) 
+            mav.NS = av.NS;
+        
+        if (av.BS != null) 
+            mav.BS = av.BS;
 
         if (av.M != null)
             mav.M = av.M.ToDictionary(p => p.Key, p => p.Value.ToModelAttributeValue());

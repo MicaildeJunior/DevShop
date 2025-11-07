@@ -11,5 +11,16 @@
   "function-runtime": "dotnet8",
   "function-memory-size": 512,
   "function-timeout": 30,
-  "function-handler": "Coletor::Coletor.Function::FunctionHandler"
+  "function-handler": "Coletor::Coletor.Function::FunctionHandler",
+  "framework": "net8.0",
+  "function-name": "coletor",
+  "package-type": "Zip",
+  "function-role": "arn:aws:iam::884957621427:role/acesso_total_lambda",
+  "function-architecture": "x86_64",
+  "function-subnets": "",
+  "function-security-groups": "",
+  "tracing-mode": "PassThrough",
+  "environment-variables": "",
+  "image-tag": "",
+  "function-description": ""
 }

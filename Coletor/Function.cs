@@ -1,9 +1,9 @@
 using Amazon.DynamoDBv2;
-using Amazon.DynamoDBv2.DataModel;
 using Amazon.DynamoDBv2.Model;
 using Amazon.Lambda.Core;
 using Amazon.Lambda.DynamoDBEvents;
 using Compartilhado;
+using Compartilhado.Enuns;
 using Compartilhado.Extensions;
 using Compartilhado.Model;
 
@@ -23,14 +23,17 @@ public class Function
                 pedido.Status = StatusPedido.Coletado;
                 try
                 {
-                    await ProcessarValorDoPedido(pedido);
+                    await ProcessarValorDoPedido(pedido, context);
+                    await AmazonUtil.EnviarParaFila(EnumFilasSQS.pedido, pedido);
+                    context.Logger.LogLine($"Sucesso na coleta do pedido: '{pedido.Id}'");
 
                 }
                 catch (Exception ex)
                 {
+                    context.Logger.LogLine($"Erro: '{ex.Message}'");
                     pedido.JustificativaDeCancelamento = ex.Message;
                     pedido.Cancelado = true;
-                    // Adicionar fila de falha
+                    await AmazonUtil.EnviarParaFila(EnumFilasSNS.falha, pedido);
                 }
 
                 await pedido.SalvarAsync();
@@ -38,12 +41,14 @@ public class Function
         }
     }
 
-    private static async Task ProcessarValorDoPedido(Pedido pedido)
+    private static async Task ProcessarValorDoPedido(Pedido pedido, ILambdaContext context)
     {
         foreach (var produto in pedido.Produtos!)
         {
-            var produtoDoEstoque = await ObterProdutoDoBynamoDbAsync(produto.Id)
-                ?? throw new InvalidOperationException($"O produto não encontrado na tabela estoque { produto.Nome}");
+            context.Logger.LogLine($"Buscando produto com Id='{produto.Id}' na tabela estoque");
+
+            var produtoDoEstoque = await ObterProdutoDoDynamoDbAsync(produto.Id)
+                ?? throw new InvalidOperationException($"O produto não foi encontrado na tabela estoque: { produto.Nome}");
 
             produto.Valor = produtoDoEstoque.Valor;
             produto.Nome = produtoDoEstoque.Nome;
@@ -56,23 +61,45 @@ public class Function
         }
     }
 
-    private static async Task<Produto?> ObterProdutoDoBynamoDbAsync(string id)
-    {
-        var client = new AmazonDynamoDBClient();
+    //private static async Task<Produto?> ObterProdutoDoDynamoDbAsync(string id)
+    //{
+    //    var client = new AmazonDynamoDBClient();
 
-        var request = new QueryRequest
+    //    var request = new QueryRequest
+    //    {
+    //        TableName = "estoque",
+    //        KeyConditionExpression = "Id = :v_id",
+    //        ExpressionAttributeValues = new Dictionary<string, AttributeValue> { { ":v_id" , new AttributeValue { S = id } } } 
+    //    };
+
+    //    var response = await client.QueryAsync(request);
+    //    var item = response.Items.FirstOrDefault();
+
+    //    if (item is null)
+    //        return null;
+
+    //    return item.ToObject<Produto?>();
+    //}
+
+    private static async Task<Produto?> ObterProdutoDoDynamoDbAsync(string id)
+    {
+        var client = new AmazonDynamoDBClient(Amazon.RegionEndpoint.SAEast1);
+
+        var request = new GetItemRequest
         {
             TableName = "estoque",
-            KeyConditionExpression = "Id = :v_id",
-            ExpressionAttributeValues = new Dictionary<string, AttributeValue> { { "v_id" , new AttributeValue { S = id } } } 
+            ConsistentRead = true,
+            Key = new Dictionary<string, AttributeValue>
+            {
+                ["Id"] = new AttributeValue { S = id?.Trim() }
+            }
         };
 
-        var response = await client.QueryAsync(request);
-        var item = response.Items.FirstOrDefault();
-
-        if (item is null)
+        var response = await client.GetItemAsync(request);
+        if (response.Item == null || response.Item.Count == 0)
             return null;
 
-        return item.ToObject<Produto?>();
+        return response.Item.ToObject<Produto>();
     }
+
 }

@@ -1,6 +1,5 @@
-<Project Sdk="Microsoft.NET.Sdk.Web"> <!--Web-->
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <OutputType>Exe</OutputType>
     <TargetFramework>net8.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
@@ -10,11 +9,12 @@
     <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
     <!-- Generate ready to run images during publishing to improve cold start time. -->
     <PublishReadyToRun>true</PublishReadyToRun>
+
+	<RootNamespace>Coletor</RootNamespace>
+	<AssemblyName>Coletor</AssemblyName>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="Amazon.Lambda.AspNetCoreServer" Version="9.0.2" />
+    <ProjectReference Include="..\Compartilhado\00_Compartilhado.csproj" />
   </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\Compartilhado\Compartilhado.csproj" />
-  </ItemGroup>
+  
 </Project>
